@@ -1,0 +1,43 @@
+{
+    "manifest_version": 3,
+    "name": "YouTube Transcript Side Panel",
+    "version": "1.0.0",
+    "description": "View YouTube video transcripts in a persistent side panel that stays visible across tabs",
+    "icons": {
+      "16": "public/vite.svg",
+      "48": "public/vite.svg",
+      "128": "public/vite.svg"
+    },
+    "permissions": [
+      "sidePanel",
+      "scripting",
+      "activeTab",
+      "tabs"
+    ],
+    "host_permissions": [
+      "*://www.youtube.com/*",
+      "*://youtube.com/*"
+    ],
+    "background": {
+      "service_worker": "src/background/service-worker.ts",
+      "type": "module"
+    },
+    "content_scripts": [
+      {
+        "matches": [
+          "*://www.youtube.com/*",
+          "*://youtube.com/*"
+        ],
+        "js": [
+          "src/content/youtube.ts"
+        ],
+        "run_at": "document_idle"
+      }
+    ],
+    "side_panel": {
+      "default_path": "src/sidepanel/index.html"
+    },
+    "action": {
+      "default_title": "Open YouTube Transcript Panel"
+    }
+  }
