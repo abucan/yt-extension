@@ -12,12 +12,20 @@
       "sidePanel",
       "scripting",
       "activeTab",
-      "tabs"
+      "tabs",
+      "identity"
     ],
     "host_permissions": [
       "*://www.youtube.com/*",
-      "*://youtube.com/*"
+      "*://youtube.com/*",
+      "https://www.googleapis.com/*"
     ],
+    "oauth2": {
+      "client_id": "987918240413-sus6p2rqulrimhg133ngc5lqtotodmv8.apps.googleusercontent.com",
+      "scopes": [
+        "https://www.googleapis.com/auth/youtube.readonly"
+      ]
+    },
     "background": {
       "service_worker": "src/background/service-worker.ts",
       "type": "module"

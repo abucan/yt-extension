@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface TranscriptLine {
   text: string;
@@ -13,8 +13,15 @@ function SidePanel() {
   const [error, setError] = useState('');
 
   const formatTimestamp = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
+
+    if (hrs > 0) {
+      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs
+        .toString()
+        .padStart(2, '0')}`;
+    }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -24,33 +31,34 @@ function SidePanel() {
     setTranscript([]);
 
     try {
-      // Find YouTube tab
-      const tabs = await chrome.tabs.query({
-        url: '*://www.youtube.com/watch?v=*',
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
       });
 
-      if (tabs.length === 0) {
-        throw new Error('No YouTube video tab found');
-      }
-
-      const tab = tabs[0];
-
-      if (!tab.id) {
+      if (!tab?.url) {
         throw new Error('Invalid tab');
       }
 
-      // Request transcript from content script
-      const response = await chrome.tabs.sendMessage(tab.id, {
+      const url = new URL(tab.url);
+      const videoId = url.searchParams.get('v');
+
+      if (!videoId) {
+        throw new Error('Open a YouTube video first');
+      }
+
+      const response = await chrome.runtime.sendMessage({
         type: 'FETCH_TRANSCRIPT',
+        videoId,
       });
 
-      if (!response.success) {
-        throw new Error(response.error || 'Failed to load transcript');
+      if (!response?.success) {
+        throw new Error(response?.error || 'Failed to load transcript');
       }
 
       setTranscript(response.transcript);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to load transcript');
     } finally {
       setLoading(false);
     }
